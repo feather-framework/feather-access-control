@@ -21,15 +21,15 @@ public struct ACL: ACLInterface {
         self.permissionKeys = permissionKeys
     }
 
-    public func hasRole(
-        _ key: String
+    public func has(
+        roleKey: String
     ) async throws -> Bool {
-        roleKeys.contains(key)
+        roleKeys.contains(roleKey)
     }
 
-    public func hasPermission(
-        _ key: String
+    public func has(
+        permissionKey: String
     ) async throws -> Bool {
-        permissionKeys.contains(key)
+        permissionKeys.contains(permissionKey)
     }
 }
