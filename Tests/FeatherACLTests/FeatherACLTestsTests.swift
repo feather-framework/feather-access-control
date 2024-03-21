@@ -52,8 +52,8 @@ final class FeatherACLTests: XCTestCase {
 
         try await AccessControl.set(acl) {
             let acl = try await AccessControl.require(ACL.self)
-            try await acl.requireRole("test-role")
-            try await acl.requirePermission("test-permission")
+            try await acl.require(roleKey: "test-role")
+            try await acl.require(permissionKey: "test-permission")
         }
     }
 
@@ -76,7 +76,7 @@ final class FeatherACLTests: XCTestCase {
         do {
             try await AccessControl.set(acl) {
                 let acl = try await AccessControl.require(ACL.self)
-                try await acl.requireRole("test-role")
+                try await acl.require(roleKey: "test-role")
             }
             XCTFail("Test case should fail.")
         }
@@ -95,7 +95,7 @@ final class FeatherACLTests: XCTestCase {
         do {
             try await AccessControl.set(acl) {
                 let acl = try await AccessControl.require(ACL.self)
-                try await acl.requirePermission("test-permission")
+                try await acl.require(permissionKey: "test-permission")
             }
             XCTFail("Test case should fail.")
         }

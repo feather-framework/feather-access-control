@@ -7,12 +7,16 @@
 
 public protocol ACLInterface: Sendable {
 
-    func hasRole(
-        _ key: String
+    func has(
+        roleKey: String
     ) async throws -> Bool
 
-    func hasPermission(
-        _ key: String
+    func has(
+        permissionKey: String
+    ) async throws -> Bool
+
+    func has(
+        permission: Permission
     ) async throws -> Bool
 
     //    func hasAccess(
@@ -20,12 +24,16 @@ public protocol ACLInterface: Sendable {
     //        userInfo: [String: Any]
     //    ) async throws -> Bool
 
-    func requireRole(
-        _ key: String
+    func require(
+        roleKey: String
     ) async throws
 
-    func requirePermission(
-        _ key: String
+    func require(
+        permissionKey: String
+    ) async throws
+
+    func require(
+        permission: Permission
     ) async throws
 
     //    func requireAccess(
@@ -43,30 +51,42 @@ extension ACLInterface {
     //        try await hasPermission(key)
     //    }
 
-    public func requireRole(
-        _ key: String
+    public func has(
+        permission: Permission
+    ) async throws -> Bool {
+        try await has(permissionKey: permission.key)
+    }
+
+    public func require(
+        roleKey: String
     ) async throws {
-        guard try await hasRole(key) else {
+        guard try await has(roleKey: roleKey) else {
             throw AccessControlError.forbidden(
                 .init(
-                    key: key,
+                    key: roleKey,
                     kind: .role
                 )
             )
         }
     }
 
-    public func requirePermission(
-        _ key: String
+    public func require(
+        permissionKey: String
     ) async throws {
-        guard try await hasPermission(key) else {
+        guard try await has(permissionKey: permissionKey) else {
             throw AccessControlError.forbidden(
                 .init(
-                    key: key,
+                    key: permissionKey,
                     kind: .permission
                 )
             )
         }
+    }
+
+    public func require(
+        permission: Permission
+    ) async throws {
+        try await require(permissionKey: permission.key)
     }
 
     //    public func requireAccess(
