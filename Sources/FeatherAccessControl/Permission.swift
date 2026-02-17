@@ -5,10 +5,8 @@
 //  Created by Tibor Bodecs on 21/03/2024.
 //
 
-import Foundation
-
 /// Generic permission object.
-public struct Permission: Equatable, Codable, Sendable, Hashable {
+public struct Permission: Equatable, Hashable, Codable, Sendable {
 
     private static let separator = "."
 
@@ -20,7 +18,11 @@ public struct Permission: Equatable, Codable, Sendable, Hashable {
     public let action: Action
 
     /// Init a new permission using a namespace, context, action.
-    public init(namespace: String, context: String, action: Action) {
+    public init(
+        namespace: String,
+        context: String,
+        action: Action
+    ) {
         self.namespace = namespace
         self.context = context
         self.action = action
@@ -29,8 +31,10 @@ public struct Permission: Equatable, Codable, Sendable, Hashable {
     /// Init a new permission using a key with 3 components.
     ///
     /// (namespace, context, action) separated by a `.`.
-    public init(_ key: String) {
-        let parts = key.components(separatedBy: Self.separator)
+    public init(
+        _ key: String
+    ) {
+        let parts = key.split(separator: Self.separator).map(String.init)
         guard parts.count == 3 else {
             fatalError("Invalid permission key")
         }

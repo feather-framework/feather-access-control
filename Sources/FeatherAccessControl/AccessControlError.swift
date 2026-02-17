@@ -5,7 +5,7 @@
 //  Created by Tibor Bodecs on 27/02/2024.
 //
 
-public enum AccessControlError: Sendable, Error {
+public enum AccessControlError: Error {
 
     public struct State: Sendable {
 
