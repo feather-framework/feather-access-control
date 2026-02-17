@@ -1,4 +1,10 @@
 //
+//  Permission.swift
+//  feather-access-control
+//
+//  Created by Binary Birds on 2026. 02. 17.
+
+//
 //  File.swift
 //
 //
@@ -17,7 +23,12 @@ public struct Permission: Equatable, Hashable, Codable, Sendable {
     /// Action for the given namespace & context.
     public let action: Action
 
-    /// Init a new permission using a namespace, context, action.
+    /// Creates a new permission from namespace, context, and action.
+    ///
+    /// - Parameters:
+    ///   - namespace: Namespace of the permission, typically a module name.
+    ///   - context: Context of the permission, typically a model name.
+    ///   - action: Action permitted for the given namespace and context.
     public init(
         namespace: String,
         context: String,
@@ -28,9 +39,11 @@ public struct Permission: Equatable, Hashable, Codable, Sendable {
         self.action = action
     }
 
-    /// Init a new permission using a key with 3 components.
+    /// Creates a permission from a key with three components.
     ///
-    /// (namespace, context, action) separated by a `.`.
+    /// The expected format is `namespace.context.action`.
+    ///
+    /// - Parameter key: Permission key to parse.
     public init(
         _ key: String
     ) {
@@ -46,11 +59,11 @@ public struct Permission: Equatable, Hashable, Codable, Sendable {
 
 extension Permission {
 
-    /// Namespace, context and action.key as an array of string.
+    /// Namespace, context, and action key components.
     public var components: [String] { [namespace, context, action.key] }
-    /// String identifier of the permisison (format: namespace.context.action).
+    /// String identifier of the permission in `namespace.context.action` format.
     public var key: String { components.joined(separator: Self.separator) }
-    /// The permission key with an access suffix (format: namespace.context.action.access).
+    /// Permission key with an `.access` suffix.
     public var accessKey: String { key + Self.separator + "access" }
 }
 
@@ -68,10 +81,12 @@ extension Permission {
         case update
         /// Action for deleting objects.
         case delete
-        /// Custom action.
+        /// Custom action key.
         case custom(String)
 
-        /// Create a new action using a raw key.
+        /// Creates an action from a raw key.
+        ///
+        /// - Parameter key: Action key string.
         public init(_ key: String) {
             switch key {
             case "list": self = .list
@@ -83,7 +98,7 @@ extension Permission {
             }
         }
 
-        /// Convert an action to a key using a String value.
+        /// Raw key representation of the action.
         public var key: String {
             switch self {
             case .list: return "list"
@@ -95,13 +110,13 @@ extension Permission {
             }
         }
 
-        /// Custom decoder (decode value from raw string).
+        /// Decodes an action from its raw string representation.
         public init(from decoder: Decoder) throws {
             let container = try decoder.singleValueContainer()
             self = .init(try container.decode(String.self))
         }
 
-        /// Custom encoder (encode value as raw string).
+        /// Encodes an action as its raw string representation.
         public func encode(to encoder: Encoder) throws {
             var container = encoder.singleValueContainer()
             try container.encode(key)
