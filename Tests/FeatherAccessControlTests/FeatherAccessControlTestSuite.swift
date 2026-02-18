@@ -1,24 +1,33 @@
 //
+//  FeatherAccessControlTestSuite.swift
+//  feather-access-control
+//
+//  Created by Binary Birds on 2026. 02. 17.
+
+//
 //  File.swift
 //
 //
 //  Created by Tibor Bodecs on 04/02/2024.
 //
 
-import XCTest
+import Testing
 
-@testable import FeatherACL
+@testable import FeatherAccessControl
 
-final class FeatherACLTests: XCTestCase {
+@Suite
+struct FeatherAccessControlTestSuite {
 
+    @Test
     func testGetACL() async throws {
         let res = try await AccessControl.exists(ACL.self)
-        XCTAssertFalse(res)
+        #expect(res == false)
 
         let acl = try await AccessControl.get(ACL.self)
-        XCTAssertNil(acl)
+        #expect(acl == nil)
     }
 
+    @Test
     func testSetACL() async throws {
         let acl = ACL(
             accountId: "test-id",
@@ -28,21 +37,22 @@ final class FeatherACLTests: XCTestCase {
 
         try await AccessControl.set(acl) {
             let res1 = try await AccessControl.exists(ACL.self)
-            XCTAssertTrue(res1)
+            #expect(res1)
 
             let acl = try await AccessControl.get(ACL.self)
-            XCTAssertNotNil(acl)
+            #expect(acl != nil)
 
             try await AccessControl.unset(ACL.self) {
                 let acl = try await AccessControl.get(ACL.self)
-                XCTAssertNil(acl)
+                #expect(acl == nil)
             }
 
             let res2 = try await AccessControl.exists(ACL.self)
-            XCTAssertTrue(res2)
+            #expect(res2)
         }
     }
 
+    @Test
     func testRequireACL() async throws {
         let acl = ACL(
             accountId: "test-id",
@@ -57,19 +67,21 @@ final class FeatherACLTests: XCTestCase {
         }
     }
 
+    @Test
     func testUnauthorizedError() async throws {
         do {
             _ = try await AccessControl.require(ACL.self)
-            XCTFail("Test case should fail.")
+            Issue.record("Expected unauthorized error.")
         }
         catch AccessControlError.unauthorized {
-            // ok
+            #expect(Bool(true))
         }
         catch {
-            XCTFail("\(error)")
+            Issue.record("Unexpected error type.")
         }
     }
 
+    @Test
     func testACLForbiddenRoleError() async throws {
         let acl = ACL(accountId: "test-id")
 
@@ -78,17 +90,18 @@ final class FeatherACLTests: XCTestCase {
                 let acl = try await AccessControl.require(ACL.self)
                 try await acl.require(roleKey: "test-role")
             }
-            XCTFail("Test case should fail.")
+            Issue.record("Expected forbidden role error.")
         }
         catch AccessControlError.forbidden(let state) {
-            XCTAssertEqual(state.kind, .role)
-            XCTAssertEqual(state.key, "test-role")
+            #expect(state.kind == .role)
+            #expect(state.key == "test-role")
         }
         catch {
-            XCTFail("\(error)")
+            Issue.record("Unexpected error type.")
         }
     }
 
+    @Test
     func testACLForbiddenPermissionError() async throws {
         let acl = ACL(accountId: "test-id")
 
@@ -97,14 +110,14 @@ final class FeatherACLTests: XCTestCase {
                 let acl = try await AccessControl.require(ACL.self)
                 try await acl.require(permissionKey: "test-permission")
             }
-            XCTFail("Test case should fail.")
+            Issue.record("Expected forbidden permission error.")
         }
         catch AccessControlError.forbidden(let state) {
-            XCTAssertEqual(state.kind, .permission)
-            XCTAssertEqual(state.key, "test-permission")
+            #expect(state.kind == .permission)
+            #expect(state.key == "test-permission")
         }
         catch {
-            XCTFail("\(error)")
+            Issue.record("Unexpected error type.")
         }
     }
 }
