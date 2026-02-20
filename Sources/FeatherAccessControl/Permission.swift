@@ -7,6 +7,7 @@
 /// Generic permission object.
 public struct Permission: Equatable, Hashable, Codable, Sendable {
 
+    /// Default separator used between permission components.
     public static let separator = "."
 
     /// Generic action for permissions.
@@ -29,7 +30,7 @@ public struct Permission: Equatable, Hashable, Codable, Sendable {
 
         /// Creates an action from a raw key.
         ///
-        /// - Parameter key: Action key string.
+        /// - Parameter rawValue: Action key string.
         public init(
             rawValue: String
         ) {
@@ -55,6 +56,9 @@ public struct Permission: Equatable, Hashable, Codable, Sendable {
             }
         }
 
+        /// Creates an action from a string literal.
+        ///
+        /// - Parameter value: Action key string.
         public init(
             stringLiteral value: StringLiteralType
         ) {
@@ -93,6 +97,7 @@ public struct Permission: Equatable, Hashable, Codable, Sendable {
     ///   - namespace: Namespace of the permission, typically a module name.
     ///   - context: Context of the permission, typically a model name.
     ///   - action: Action permitted for the given namespace and context.
+    ///   - separator: The separator to use when converting to rawValue.
     public init(
         namespace: String,
         context: String,
@@ -109,7 +114,9 @@ public struct Permission: Equatable, Hashable, Codable, Sendable {
     ///
     /// The expected format is `namespace.context.action`.
     ///
-    /// - Parameter rawValue: Permission key to parse.
+    /// - Parameters:
+    ///   - rawValue: Permission key to parse.
+    ///   - separator: Separator used to split the permission key.
     public init?(
         rawValue: String,
         separator: String = Self.separator
