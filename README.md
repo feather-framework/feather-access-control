@@ -12,10 +12,9 @@ A universal access control library for server-side Swift projects.
 
 - Async `AccessControlList` protocol for role/permission checks
 - Task-local access control context via `AccessControl.set/get/require/unset`
-- Default `ACL` implementation with static roles and permission keys
+- Default `ACL` implementation with roles and permission keys
 - Structured errors for unauthorized and forbidden access states
-- Strongly typed `Permission` model with namespace/context/action structure
-- Built-in CRUD action keys (`list`, `detail`, `create`, `update`, `delete`) plus custom actions
+
 
 ## Requirements
 

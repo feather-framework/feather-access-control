@@ -25,15 +25,6 @@ public protocol AccessControlList: Sendable {
         permission: String
     ) async throws(AccessControlError) -> Bool
 
-    /// Checks whether the ACL contains the given permission value.
-    ///
-    /// - Parameter permission: Permission value to test.
-    /// - Returns: `true` when the permission is present, otherwise `false`.
-    /// - Throws: Any error produced by the ACL backend.
-    func has(
-        permission: Permission
-    ) async throws(AccessControlError) -> Bool
-
     /// Requires the ACL to contain the given role.
     ///
     /// - Parameter role: Required role key.
@@ -49,28 +40,9 @@ public protocol AccessControlList: Sendable {
     func require(
         permission: String
     ) async throws(AccessControlError)
-
-    /// Requires the ACL to contain the given permission value.
-    ///
-    /// - Parameter permission: Required permission.
-    /// - Throws: ``AccessControlError/forbidden(_:)`` when the permission is missing.
-    func require(
-        permission: Permission
-    ) async throws(AccessControlError)
 }
 
 extension AccessControlList {
-
-    /// Checks whether the ACL contains the given permission value.
-    ///
-    /// - Parameter permission: Permission value to test.
-    /// - Returns: `true` when the permission is present, otherwise `false`.
-    /// - Throws: Any error produced by `has(permission:)`.
-    public func has(
-        permission: Permission
-    ) async throws(AccessControlError) -> Bool {
-        try await has(permission: permission.rawValue)
-    }
 
     /// Requires the ACL to contain the given role.
     ///
@@ -104,15 +76,5 @@ extension AccessControlList {
                 )
             )
         }
-    }
-
-    /// Requires the ACL to contain the given permission value.
-    ///
-    /// - Parameter permission: Required permission.
-    /// - Throws: ``AccessControlError/forbidden(_:)`` when the permission is missing.
-    public func require(
-        permission: Permission
-    ) async throws(AccessControlError) {
-        try await require(permission: permission.rawValue)
     }
 }
