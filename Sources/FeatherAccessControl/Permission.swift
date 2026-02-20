@@ -4,73 +4,16 @@
 //
 //  Created by Binary Birds on 2026. 02. 17.
 
-//
-//  File.swift
-//
-//
-//  Created by Tibor Bodecs on 21/03/2024.
-//
-
 /// Generic permission object.
 public struct Permission: Equatable, Hashable, Codable, Sendable {
 
-    private static let separator = "."
-
-    /// Namespace of the permission, usually the module name.
-    public let namespace: String
-    /// Context of the permission, usually a model name.
-    public let context: String
-    /// Action for the given namespace & context.
-    public let action: Action
-
-    /// Creates a new permission from namespace, context, and action.
-    ///
-    /// - Parameters:
-    ///   - namespace: Namespace of the permission, typically a module name.
-    ///   - context: Context of the permission, typically a model name.
-    ///   - action: Action permitted for the given namespace and context.
-    public init(
-        namespace: String,
-        context: String,
-        action: Action
-    ) {
-        self.namespace = namespace
-        self.context = context
-        self.action = action
-    }
-
-    /// Creates a permission from a key with three components.
-    ///
-    /// The expected format is `namespace.context.action`.
-    ///
-    /// - Parameter key: Permission key to parse.
-    public init(
-        _ key: String
-    ) {
-        let parts = key.split(separator: Self.separator).map(String.init)
-        guard parts.count == 3 else {
-            fatalError("Invalid permission key")
-        }
-        self.namespace = parts[0]
-        self.context = parts[1]
-        self.action = .init(parts[2])
-    }
-}
-
-extension Permission {
-
-    /// Namespace, context, and action key components.
-    public var components: [String] { [namespace, context, action.key] }
-    /// String identifier of the permission in `namespace.context.action` format.
-    public var key: String { components.joined(separator: Self.separator) }
-    /// Permission key with an `.access` suffix.
-    public var accessKey: String { key + Self.separator + "access" }
-}
-
-extension Permission {
+    public static let separator = "."
 
     /// Generic action for permissions.
-    public enum Action: Equatable, Codable, Sendable, Hashable {
+    public enum Action: RawRepresentable, Equatable, Codable, Sendable,
+        Hashable, ExpressibleByStringLiteral
+    {
+
         /// Action for list objects.
         case list
         /// Action for object details.
@@ -87,19 +30,21 @@ extension Permission {
         /// Creates an action from a raw key.
         ///
         /// - Parameter key: Action key string.
-        public init(_ key: String) {
-            switch key {
+        public init(
+            rawValue: String
+        ) {
+            switch rawValue {
             case "list": self = .list
             case "detail": self = .detail
             case "create": self = .create
             case "update": self = .update
             case "delete": self = .delete
-            default: self = .custom(key)
+            default: self = .custom(rawValue)
             }
         }
 
         /// Raw key representation of the action.
-        public var key: String {
+        public var rawValue: String {
             switch self {
             case .list: return "list"
             case .detail: return "detail"
@@ -110,16 +55,82 @@ extension Permission {
             }
         }
 
+        public init(
+            stringLiteral value: StringLiteralType
+        ) {
+            self = .init(rawValue: value)
+        }
+
         /// Decodes an action from its raw string representation.
-        public init(from decoder: Decoder) throws {
+        public init(
+            from decoder: Decoder
+        ) throws {
             let container = try decoder.singleValueContainer()
-            self = .init(try container.decode(String.self))
+            self = .init(rawValue: try container.decode(String.self))
         }
 
         /// Encodes an action as its raw string representation.
-        public func encode(to encoder: Encoder) throws {
+        public func encode(
+            to encoder: Encoder
+        ) throws {
             var container = encoder.singleValueContainer()
-            try container.encode(key)
+            try container.encode(rawValue)
         }
+    }
+
+    /// Namespace of the permission, usually the module name.
+    public let namespace: String
+    /// Context of the permission, usually a model name.
+    public let context: String
+    /// Action for the given namespace & context.
+    public let action: Action
+    /// The separator used to separate components.
+    public let separator: String
+
+    /// Creates a new permission from namespace, context, and action.
+    ///
+    /// - Parameters:
+    ///   - namespace: Namespace of the permission, typically a module name.
+    ///   - context: Context of the permission, typically a model name.
+    ///   - action: Action permitted for the given namespace and context.
+    public init(
+        namespace: String,
+        context: String,
+        action: Action,
+        separator: String = Self.separator
+    ) {
+        self.namespace = namespace
+        self.context = context
+        self.action = action
+        self.separator = separator
+    }
+
+    /// Creates a permission from a key with three components.
+    ///
+    /// The expected format is `namespace.context.action`.
+    ///
+    /// - Parameter rawValue: Permission key to parse.
+    public init?(
+        rawValue: String,
+        separator: String = Self.separator
+    ) {
+        let parts = rawValue.split(separator: separator).map(String.init)
+        guard parts.count == 3 else {
+            return nil
+        }
+        self.namespace = parts[0]
+        self.context = parts[1]
+        self.action = .init(rawValue: parts[2])
+        self.separator = separator
+    }
+
+    /// Namespace, context, and action key components.
+    public var components: [String] {
+        [namespace, context, action.rawValue]
+    }
+
+    /// Raw value using the namespace, context and action joined with the separator.
+    public var rawValue: String {
+        components.joined(separator: separator)
     }
 }

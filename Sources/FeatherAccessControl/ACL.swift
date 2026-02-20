@@ -4,58 +4,51 @@
 //
 //  Created by Binary Birds on 2026. 02. 17.
 
-//
-//  File.swift
-//
-//
-//  Created by Tibor Bodecs on 06/03/2024.
-//
-
 /// Default ACL implementation backed by static role and permission key lists.
-public struct ACL: ACLInterface {
+public struct ACL: AccessControlList {
 
     /// Identifier of the account the ACL belongs to.
     public let accountId: String
     /// Role keys granted to the account.
-    public let roleKeys: [String]
+    public let roles: [String]
     /// Permission keys granted to the account.
-    public let permissionKeys: [String]
+    public let permissions: [String]
 
     /// Creates a new ACL value.
     ///
     /// - Parameters:
     ///   - accountId: Identifier of the account.
-    ///   - roleKeys: Role keys available to the account.
-    ///   - permissionKeys: Permission keys available to the account.
+    ///   - roles: Role keys available to the account.
+    ///   - permissions: Permission keys available to the account.
     public init(
         accountId: String,
-        roleKeys: [String] = [],
-        permissionKeys: [String] = []
+        roles: [String] = [],
+        permissions: [String] = []
     ) {
         self.accountId = accountId
-        self.roleKeys = roleKeys
-        self.permissionKeys = permissionKeys
+        self.roles = roles
+        self.permissions = permissions
     }
 
     /// Checks whether the ACL contains the given role key.
     ///
-    /// - Parameter roleKey: Role key to test.
+    /// - Parameter role: Role key to test.
     /// - Returns: `true` when the role key is present, otherwise `false`.
     /// - Throws: This method currently does not throw.
     public func has(
-        roleKey: String
-    ) async throws -> Bool {
-        roleKeys.contains(roleKey)
+        role: String
+    ) async throws(AccessControlError) -> Bool {
+        roles.contains(role)
     }
 
     /// Checks whether the ACL contains the given permission key.
     ///
-    /// - Parameter permissionKey: Permission key to test.
+    /// - Parameter permission: Permission key to test.
     /// - Returns: `true` when the permission key is present, otherwise `false`.
     /// - Throws: This method currently does not throw.
     public func has(
-        permissionKey: String
-    ) async throws -> Bool {
-        permissionKeys.contains(permissionKey)
+        permission: String
+    ) async throws(AccessControlError) -> Bool {
+        permissions.contains(permission)
     }
 }

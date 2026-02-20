@@ -1,36 +1,29 @@
 //
-//  ACLInterface.swift
+//  AccessControlList.swift
 //  feather-access-control
 //
 //  Created by Binary Birds on 2026. 02. 17.
 
-//
-//  File.swift
-//
-//
-//  Created by Tibor Bodecs on 06/03/2024.
-//
-
 /// Interface describing role and permission checks for an ACL implementation.
-public protocol ACLInterface: Sendable {
+public protocol AccessControlList: Sendable {
 
     /// Checks whether the ACL contains the given role.
     ///
-    /// - Parameter roleKey: Role key to test.
+    /// - Parameter role: Role key to test.
     /// - Returns: `true` when the role is present, otherwise `false`.
     /// - Throws: Any error produced by the ACL backend.
     func has(
-        roleKey: String
-    ) async throws -> Bool
+        role: String
+    ) async throws(AccessControlError) -> Bool
 
     /// Checks whether the ACL contains the given permission key.
     ///
-    /// - Parameter permissionKey: Permission key to test.
+    /// - Parameter permission: Permission key to test.
     /// - Returns: `true` when the permission is present, otherwise `false`.
     /// - Throws: Any error produced by the ACL backend.
     func has(
-        permissionKey: String
-    ) async throws -> Bool
+        permission: String
+    ) async throws(AccessControlError) -> Bool
 
     /// Checks whether the ACL contains the given permission value.
     ///
@@ -39,28 +32,23 @@ public protocol ACLInterface: Sendable {
     /// - Throws: Any error produced by the ACL backend.
     func has(
         permission: Permission
-    ) async throws -> Bool
-
-    //    func hasAccess(
-    //        _ key: String,
-    //        userInfo: [String: Any]
-    //    ) async throws -> Bool
+    ) async throws(AccessControlError) -> Bool
 
     /// Requires the ACL to contain the given role.
     ///
-    /// - Parameter roleKey: Required role key.
+    /// - Parameter role: Required role key.
     /// - Throws: ``AccessControlError/forbidden(_:)`` when the role is missing.
     func require(
-        roleKey: String
-    ) async throws
+        role: String
+    ) async throws(AccessControlError)
 
     /// Requires the ACL to contain the given permission key.
     ///
-    /// - Parameter permissionKey: Required permission key.
+    /// - Parameter permission: Required permission key.
     /// - Throws: ``AccessControlError/forbidden(_:)`` when the permission is missing.
     func require(
-        permissionKey: String
-    ) async throws
+        permission: String
+    ) async throws(AccessControlError)
 
     /// Requires the ACL to contain the given permission value.
     ///
@@ -68,45 +56,33 @@ public protocol ACLInterface: Sendable {
     /// - Throws: ``AccessControlError/forbidden(_:)`` when the permission is missing.
     func require(
         permission: Permission
-    ) async throws
-
-    //    func requireAccess(
-    //        _ key: String,
-    //        userInfo: [String: Any]
-    //    ) async throws
+    ) async throws(AccessControlError)
 }
 
-extension ACLInterface {
-
-    //    public func hasAccess(
-    //        _ key: String,
-    //        userInfo: [String: Any]
-    //    ) async throws -> Bool {
-    //        try await hasPermission(key)
-    //    }
+extension AccessControlList {
 
     /// Checks whether the ACL contains the given permission value.
     ///
     /// - Parameter permission: Permission value to test.
     /// - Returns: `true` when the permission is present, otherwise `false`.
-    /// - Throws: Any error produced by `has(permissionKey:)`.
+    /// - Throws: Any error produced by `has(permission:)`.
     public func has(
         permission: Permission
-    ) async throws -> Bool {
-        try await has(permissionKey: permission.key)
+    ) async throws(AccessControlError) -> Bool {
+        try await has(permission: permission.rawValue)
     }
 
     /// Requires the ACL to contain the given role.
     ///
-    /// - Parameter roleKey: Required role key.
+    /// - Parameter role: Required role key.
     /// - Throws: ``AccessControlError/forbidden(_:)`` when the role is missing.
     public func require(
-        roleKey: String
-    ) async throws {
-        guard try await has(roleKey: roleKey) else {
-            throw AccessControlError.forbidden(
+        role: String
+    ) async throws(AccessControlError) {
+        guard try await has(role: role) else {
+            throw .forbidden(
                 .init(
-                    key: roleKey,
+                    key: role,
                     kind: .role
                 )
             )
@@ -115,15 +91,15 @@ extension ACLInterface {
 
     /// Requires the ACL to contain the given permission key.
     ///
-    /// - Parameter permissionKey: Required permission key.
+    /// - Parameter permission: Required permission key.
     /// - Throws: ``AccessControlError/forbidden(_:)`` when the permission is missing.
     public func require(
-        permissionKey: String
-    ) async throws {
-        guard try await has(permissionKey: permissionKey) else {
-            throw AccessControlError.forbidden(
+        permission: String
+    ) async throws(AccessControlError) {
+        guard try await has(permission: permission) else {
+            throw .forbidden(
                 .init(
-                    key: permissionKey,
+                    key: permission,
                     kind: .permission
                 )
             )
@@ -136,21 +112,7 @@ extension ACLInterface {
     /// - Throws: ``AccessControlError/forbidden(_:)`` when the permission is missing.
     public func require(
         permission: Permission
-    ) async throws {
-        try await require(permissionKey: permission.key)
+    ) async throws(AccessControlError) {
+        try await require(permission: permission.rawValue)
     }
-
-    //    public func requireAccess(
-    //        _ key: String,
-    //        userInfo: [String: Any]
-    //    ) async throws {
-    //        guard try await hasAccess(key, userInfo: userInfo) else {
-    //            throw AccessControlError.forbidden(
-    //                .init(
-    //                    key: key,
-    //                    kind: .access
-    //                )
-    //            )
-    //        }
-    //    }
 }

@@ -4,13 +4,6 @@
 //
 //  Created by Binary Birds on 2026. 02. 17.
 
-//
-//  PermissionTests.swift
-//
-//
-//  Created by Codex on 17/02/2026.
-//
-
 import Foundation
 import Testing
 
@@ -24,30 +17,52 @@ struct PermissionTestSuite {
         let permission = Permission(
             namespace: "app",
             context: "article",
-            action: .create
+            action: "create",
+            separator: ":"
         )
 
         #expect(permission.components == ["app", "article", "create"])
-        #expect(permission.key == "app.article.create")
-        #expect(permission.accessKey == "app.article.create.access")
+        #expect(permission.action == .create)
+        #expect(permission.rawValue == "app:article:create")
+    }
+
+    @Test
+    func testPermissionFromPartsBuildsDerivedKeysCustomAction() {
+        let permission = Permission(
+            namespace: "app",
+            context: "article",
+            action: "exists",
+            separator: "_"
+        )
+
+        #expect(permission.components == ["app", "article", "exists"])
+        #expect(permission.action == .custom("exists"))
+        #expect(permission.rawValue == "app_article_exists")
     }
 
     @Test
     func testPermissionFromKeyParsesKnownAction() {
-        let permission = Permission("app.article.update")
+        guard let permission = Permission(rawValue: "app.article.update") else {
+            Issue.record("Permission should exist.")
+            return
+        }
 
         #expect(permission.namespace == "app")
         #expect(permission.context == "article")
         #expect(permission.action == .update)
-        #expect(permission.key == "app.article.update")
+        #expect(permission.rawValue == "app.article.update")
     }
 
     @Test
     func testPermissionFromKeyParsesCustomAction() {
-        let permission = Permission("app.article.publish")
+        guard let permission = Permission(rawValue: "app.article.publish")
+        else {
+            Issue.record("Permission should exist.")
+            return
+        }
 
         #expect(permission.action == .custom("publish"))
-        #expect(permission.key == "app.article.publish")
+        #expect(permission.rawValue == "app.article.publish")
     }
 
     @Test
@@ -80,7 +95,7 @@ struct PermissionTestSuite {
             context: "article",
             action: .delete
         )
-        let acl = ACL(accountId: "test-id", permissionKeys: [permission.key])
+        let acl = ACL(accountId: "test-id", permissions: [permission.rawValue])
 
         let hasPermission = try await acl.has(permission: permission)
         #expect(hasPermission)
@@ -101,7 +116,7 @@ struct PermissionTestSuite {
         }
         catch AccessControlError.forbidden(let state) {
             #expect(state.kind == .permission)
-            #expect(state.key == permission.key)
+            #expect(state.key == permission.rawValue)
         }
         catch {
             Issue.record("Unexpected error type.")

@@ -4,13 +4,6 @@
 //
 //  Created by Binary Birds on 2026. 02. 17.
 
-//
-//  File.swift
-//
-//
-//  Created by Tibor Bodecs on 04/02/2024.
-//
-
 import Testing
 
 @testable import FeatherAccessControl
@@ -31,8 +24,8 @@ struct FeatherAccessControlTestSuite {
     func testSetACL() async throws {
         let acl = ACL(
             accountId: "test-id",
-            roleKeys: ["test-role"],
-            permissionKeys: ["test-permission"]
+            roles: ["test-role"],
+            permissions: ["test-permission"]
         )
 
         try await AccessControl.set(acl) {
@@ -56,14 +49,14 @@ struct FeatherAccessControlTestSuite {
     func testRequireACL() async throws {
         let acl = ACL(
             accountId: "test-id",
-            roleKeys: ["test-role"],
-            permissionKeys: ["test-permission"]
+            roles: ["test-role"],
+            permissions: ["test-permission"]
         )
 
         try await AccessControl.set(acl) {
             let acl = try await AccessControl.require(ACL.self)
-            try await acl.require(roleKey: "test-role")
-            try await acl.require(permissionKey: "test-permission")
+            try await acl.require(role: "test-role")
+            try await acl.require(permission: "test-permission")
         }
     }
 
@@ -88,7 +81,7 @@ struct FeatherAccessControlTestSuite {
         do {
             try await AccessControl.set(acl) {
                 let acl = try await AccessControl.require(ACL.self)
-                try await acl.require(roleKey: "test-role")
+                try await acl.require(role: "test-role")
             }
             Issue.record("Expected forbidden role error.")
         }
@@ -108,7 +101,7 @@ struct FeatherAccessControlTestSuite {
         do {
             try await AccessControl.set(acl) {
                 let acl = try await AccessControl.require(ACL.self)
-                try await acl.require(permissionKey: "test-permission")
+                try await acl.require(permission: "test-permission")
             }
             Issue.record("Expected forbidden permission error.")
         }
