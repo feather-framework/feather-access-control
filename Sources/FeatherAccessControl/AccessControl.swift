@@ -4,18 +4,11 @@
 //
 //  Created by Binary Birds on 2026. 02. 17.
 
-//
-//  File.swift
-//
-//
-//  Created by Tibor Bodecs on 05/02/2024.
-//
-
 /// Task-local access control context utilities.
 public enum AccessControl: Sendable {
 
     @TaskLocal
-    private static var rawValue: ACLInterface?
+    private static var rawValue: AccessControlList?
 
     /// Runs a block with the given ACL value set for the current task context.
     ///
@@ -24,7 +17,7 @@ public enum AccessControl: Sendable {
     ///   - block: Async block executed with the provided ACL context.
     /// - Returns: The result produced by `block`.
     /// - Throws: Rethrows any error thrown by `block`.
-    public static func set<T: ACLInterface, R>(
+    public static func set<T: AccessControlList, R>(
         _ acl: T?,
         _ block: (() async throws -> R)
     ) async throws -> R {
@@ -40,7 +33,7 @@ public enum AccessControl: Sendable {
     ///   - block: Async block executed without an ACL context.
     /// - Returns: The result produced by `block`.
     /// - Throws: Rethrows any error thrown by `block`.
-    public static func unset<T: ACLInterface, R>(
+    public static func unset<T: AccessControlList, R>(
         _ type: T.Type,
         _ block: (() async throws -> R)
     ) async throws -> R {
@@ -54,11 +47,10 @@ public enum AccessControl: Sendable {
     /// - Parameter type: ACL type to retrieve from the task-local context.
     /// - Returns: The typed ACL value, or `nil` if unavailable.
     /// - Throws: This method currently does not throw.
-    public static func get<T: ACLInterface>(
+    public static func get<T: AccessControlList>(
         _ type: T.Type
     ) async throws -> T? {
-        _ = type
-        return rawValue as? T
+        rawValue as? T
     }
 
     /// Returns the current task-local ACL value or throws if it is missing.
@@ -66,12 +58,11 @@ public enum AccessControl: Sendable {
     /// - Parameter type: ACL type to retrieve from the task-local context.
     /// - Returns: The typed ACL value.
     /// - Throws: ``AccessControlError/unauthorized`` if no matching ACL is set.
-    public static func require<T: ACLInterface>(
+    public static func require<T: AccessControlList>(
         _ type: T.Type
-    ) async throws -> T {
-        _ = type
+    ) async throws(AccessControlError) -> T {
         guard let value = rawValue as? T else {
-            throw AccessControlError.unauthorized
+            throw .unauthorized
         }
         return value
     }
@@ -81,10 +72,9 @@ public enum AccessControl: Sendable {
     /// - Parameter type: ACL type to check for.
     /// - Returns: `true` when a matching ACL is available, otherwise `false`.
     /// - Throws: This method currently does not throw.
-    public static func exists<T: ACLInterface>(
+    public static func exists<T: AccessControlList>(
         _ type: T.Type
     ) async throws -> Bool {
-        _ = type
-        return rawValue as? T != nil
+        try await get(T.self) != nil
     }
 }

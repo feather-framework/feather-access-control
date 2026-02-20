@@ -4,13 +4,6 @@
 //
 //  Created by Binary Birds on 2026. 02. 17.
 
-//
-//  File.swift
-//
-//
-//  Created by Tibor Bodecs on 04/02/2024.
-//
-
 import Testing
 
 @testable import FeatherAccessControl
@@ -30,9 +23,9 @@ struct FeatherAccessControlTestSuite {
     @Test
     func testSetACL() async throws {
         let acl = ACL(
-            accountId: "test-id",
-            roleKeys: ["test-role"],
-            permissionKeys: ["test-permission"]
+            account: "test-id",
+            roles: ["test-role"],
+            permissions: ["test-permission"]
         )
 
         try await AccessControl.set(acl) {
@@ -55,15 +48,15 @@ struct FeatherAccessControlTestSuite {
     @Test
     func testRequireACL() async throws {
         let acl = ACL(
-            accountId: "test-id",
-            roleKeys: ["test-role"],
-            permissionKeys: ["test-permission"]
+            account: "test-id",
+            roles: ["test-role"],
+            permissions: ["test-permission"]
         )
 
         try await AccessControl.set(acl) {
             let acl = try await AccessControl.require(ACL.self)
-            try await acl.require(roleKey: "test-role")
-            try await acl.require(permissionKey: "test-permission")
+            try await acl.require(role: "test-role")
+            try await acl.require(permission: "test-permission")
         }
     }
 
@@ -83,12 +76,12 @@ struct FeatherAccessControlTestSuite {
 
     @Test
     func testACLForbiddenRoleError() async throws {
-        let acl = ACL(accountId: "test-id")
+        let acl = ACL(account: "test-id")
 
         do {
             try await AccessControl.set(acl) {
                 let acl = try await AccessControl.require(ACL.self)
-                try await acl.require(roleKey: "test-role")
+                try await acl.require(role: "test-role")
             }
             Issue.record("Expected forbidden role error.")
         }
@@ -103,12 +96,12 @@ struct FeatherAccessControlTestSuite {
 
     @Test
     func testACLForbiddenPermissionError() async throws {
-        let acl = ACL(accountId: "test-id")
+        let acl = ACL(account: "test-id")
 
         do {
             try await AccessControl.set(acl) {
                 let acl = try await AccessControl.require(ACL.self)
-                try await acl.require(permissionKey: "test-permission")
+                try await acl.require(permission: "test-permission")
             }
             Issue.record("Expected forbidden permission error.")
         }

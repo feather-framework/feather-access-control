@@ -4,13 +4,6 @@
 //
 //  Created by Binary Birds on 2026. 02. 17.
 
-//
-//  File.swift
-//
-//
-//  Created by Tibor Bodecs on 27/02/2024.
-//
-
 /// Errors related to access control context and authorization checks.
 public enum AccessControlError: Error {
 
@@ -23,7 +16,6 @@ public enum AccessControlError: Error {
             case permission
             /// A role check failed.
             case role
-            //            case access
         }
 
         /// Key that failed authorization.
