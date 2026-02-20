@@ -23,7 +23,7 @@ struct FeatherAccessControlTestSuite {
     @Test
     func testSetACL() async throws {
         let acl = ACL(
-            accountId: "test-id",
+            account: "test-id",
             roles: ["test-role"],
             permissions: ["test-permission"]
         )
@@ -48,7 +48,7 @@ struct FeatherAccessControlTestSuite {
     @Test
     func testRequireACL() async throws {
         let acl = ACL(
-            accountId: "test-id",
+            account: "test-id",
             roles: ["test-role"],
             permissions: ["test-permission"]
         )
@@ -76,7 +76,7 @@ struct FeatherAccessControlTestSuite {
 
     @Test
     func testACLForbiddenRoleError() async throws {
-        let acl = ACL(accountId: "test-id")
+        let acl = ACL(account: "test-id")
 
         do {
             try await AccessControl.set(acl) {
@@ -96,7 +96,7 @@ struct FeatherAccessControlTestSuite {
 
     @Test
     func testACLForbiddenPermissionError() async throws {
-        let acl = ACL(accountId: "test-id")
+        let acl = ACL(account: "test-id")
 
         do {
             try await AccessControl.set(acl) {

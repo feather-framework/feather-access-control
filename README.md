@@ -59,7 +59,7 @@ Define account identifier, roles and permissions using an ACL object:
 import FeatherAccessControl
 
 let acl = ACL(
-    accountId: "user-account-123",
+    account: "user-account-123",
     roles: [
         "editor"
     ],

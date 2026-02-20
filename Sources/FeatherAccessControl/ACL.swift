@@ -8,26 +8,31 @@
 public struct ACL: AccessControlList {
 
     /// Identifier of the account the ACL belongs to.
-    public let accountId: String
+    public let account: String
     /// Role keys granted to the account.
     public let roles: [String]
     /// Permission keys granted to the account.
     public let permissions: [String]
+    /// Additional user information.
+    public let userInfo: [String: String]
 
     /// Creates a new ACL value.
     ///
     /// - Parameters:
-    ///   - accountId: Identifier of the account.
+    ///   - account: Identifier of the account.
     ///   - roles: Role keys available to the account.
     ///   - permissions: Permission keys available to the account.
+    ///   - userInfo: Additional user information.
     public init(
-        accountId: String,
+        account: String,
         roles: [String] = [],
-        permissions: [String] = []
+        permissions: [String] = [],
+        userInfo: [String: String] = [:]
     ) {
-        self.accountId = accountId
+        self.account = account
         self.roles = roles
         self.permissions = permissions
+        self.userInfo = userInfo
     }
 
     /// Checks whether the ACL contains the given role key.
