@@ -10,7 +10,12 @@ A universal access control library for server-side Swift projects.
 
 ## Features
 
-- TODO
+- Async `AccessControlList` protocol for role/permission checks
+- Task-local access control context via `AccessControl.set/get/require/unset`
+- Default `ACL` implementation with static roles and permission keys
+- Structured errors for unauthorized and forbidden access states
+- Strongly typed `Permission` model with namespace/context/action structure
+- Built-in CRUD action keys (`list`, `detail`, `create`, `update`, `delete`) plus custom actions
 
 ## Requirements
 
@@ -49,7 +54,38 @@ Then add `FeatherAccessControl` to your target dependencies:
     https://feather-framework.github.io/feather-access-control/
 )
 
-TODO
+Define account identifier, roles and permissions using an ACL object:
+
+```swift
+import FeatherAccessControl
+
+let acl = ACL(
+    accountId: "user-account-123",
+    roles: [
+        "editor"
+    ],
+    permissions: [
+        "article:write",
+        "article:read",
+    ]
+)
+```
+
+Set the ACL for a request/task and require access:
+
+```swift
+try await AccessControl.set(acl) {
+    let acl = try await AccessControl.require(ACL.self)
+
+    try await acl.require(role: "editor")
+    try await acl.require(permission: "article:write")
+}
+```
+
+Error behavior:
+
+- `AccessControl.require(...)` throws `AccessControlError.unauthorized` when no ACL is set.
+- `acl.require(role:)` / `acl.require(permission:)` throws `AccessControlError.forbidden` when access is missing.
 
 > [!WARNING]
 > This repository is a work in progress, things can break until it reaches v1.0.0.
